@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataFlow>
+    <connectionManagers>
+        <connectionManager refId="connectionManagers[DESKTOP-IC03QCJ\DAODHOA.BookOnline]" creationName="SQL_SERVER" objectName="DESKTOP-IC03QCJ\DAODHOA.BookOnline">
+            <connection database="BookOnline" hostname="DESKTOP-IC03QCJ\DAODHOA" password="123456" username="sa"/>
+        </connectionManager>
+    </connectionManagers>
+    <executables>
+        <pineline>
+            <components>
+                <sqlServerSource>
+                    <connectionManagerRefId>connectionManagers[DESKTOP-IC03QCJ\DAODHOA.BookOnline]</connectionManagerRefId>
+                    <outputs>
+                        <outputColumn id="DataFlow.SqlServerSource.Outputs[SqlServerSourceOutput].Columns[Column 0]">
+                            <dataType>varchar</dataType>
+                            <length>50</length>
+                            <name>Column 0</name>
+                        </outputColumn>
+                        <outputColumn id="DataFlow.SqlServerSource.Outputs[SqlServerSourceOutput].Columns[Column 1]">
+                            <dataType>varchar</dataType>
+                            <length>50</length>
+                            <name>Column 1</name>
+                        </outputColumn>
+                        <outputColumn id="DataFlow.SqlServerSource.Outputs[SqlServerSourceOutput].Columns[Column 2]">
+                            <dataType>varchar</dataType>
+                            <length>50</length>
+                            <name>Column 2</name>
+                        </outputColumn>
+                        <outputColumn id="DataFlow.SqlServerSource.Outputs[SqlServerSourceOutput].Columns[Column 3]">
+                            <dataType>varchar</dataType>
+                            <length>50</length>
+                            <name>Column 3</name>
+                        </outputColumn>
+                    </outputs>
+                    <tableName>OLE DB Destination</tableName>
+                </sqlServerSource>
+            </components>
+        </pineline>
+    </executables>
+</dataFlow>
