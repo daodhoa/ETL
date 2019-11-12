@@ -2,16 +2,15 @@ package com.connection;
 
 import com.model.Column;
 import org.apache.poi.ss.usermodel.*;
-import java.io.File;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ExcelConnection {
     private String filePath;
-
-    public ExcelConnection(){};
 
     public ExcelConnection(String filePath) {
         this.filePath = filePath;
@@ -26,9 +25,9 @@ public class ExcelConnection {
     }
 
     private Workbook readExcel() throws IOException {
-        File file = new File(getFilePath());
+        //File file = new File(getFilePath());
+        InputStream file = new FileInputStream(getFilePath());
         Workbook workbook = WorkbookFactory.create(file);
-        workbook.close();
         return workbook;
     }
 
@@ -52,6 +51,12 @@ public class ExcelConnection {
         List<Column> listColumn = new ArrayList<>();
         Sheet sheet = this.getSheetAtIndex(index);
         Row firstRow = sheet.getRow(0);
+        try {
+            int checkEmpty = firstRow.getFirstCellNum();
+        } catch (Exception e) {
+            return null;
+        }
+
         if (isFirstRow == false) {
             int numberOfColumn = firstRow.getLastCellNum();
             for (int i = 0; i < numberOfColumn; i++) {
@@ -88,5 +93,43 @@ public class ExcelConnection {
             listData.add(listCellData);
         }
         return listData;
+    }
+
+    public void insertSheet(String sheetName) throws IOException {
+        Workbook workbook = readExcel();
+        workbook.createSheet(sheetName);
+        OutputStream out = new FileOutputStream(getFilePath());
+        workbook.write(out);
+        workbook.close();
+    }
+
+    public void insertDataToSheet(int sheetIndex, List<Column> listInputColumns,
+                                  List<Map<String, String>> listInputDataToDestination) throws IOException {
+        Workbook workbook = this.readExcel();
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
+
+        int currentRow = sheet.getLastRowNum();
+        int rowNum = currentRow == 0 ? currentRow : (currentRow + 1);
+
+        Row rowName = sheet.createRow(rowNum);
+        for (int j = 0; j < listInputColumns.size(); j ++) {
+            Cell cell = rowName.createCell(j);
+            cell.setCellValue(listInputColumns.get(j).getName());
+        }
+        rowNum ++;
+
+        for (int i = 0; i < listInputDataToDestination.size(); i++) {
+            Row row = sheet.createRow(rowNum++);
+            Map<String, String> mapOneRow = listInputDataToDestination.get(i);
+            for (int j = 0; j < listInputColumns.size(); j ++) {
+                Cell cell = row.createCell(j);
+                cell.setCellValue(mapOneRow.get(listInputColumns.get(j).getId()));
+            }
+        }
+
+        OutputStream outputStream = new FileOutputStream(getFilePath());
+        workbook.write(outputStream);
+        workbook.close();
+        System.out.println("Write successfully");
     }
 }

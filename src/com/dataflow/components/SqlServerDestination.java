@@ -4,7 +4,7 @@ import com.model.Column;
 
 import java.util.List;
 
-public class SqlServerDestination {
+public class SqlServerDestination implements DestinationInterface{
     private String refId;
     private String classId;
     private String tableName;
@@ -20,16 +20,8 @@ public class SqlServerDestination {
         return refId;
     }
 
-    public void setRefId(String refId) {
-        this.refId = refId;
-    }
-
     public String getClassId() {
         return classId;
-    }
-
-    public void setClassId(String classId) {
-        this.classId = classId;
     }
 
     public String getTableName() {

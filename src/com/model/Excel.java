@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-
+@XmlRootElement(name = "excelTemp")
 public class Excel implements Connection{
     private String filePath;
     private List<Column> listColumns;
@@ -14,6 +14,10 @@ public class Excel implements Connection{
 
     public Excel(){
     };
+
+    public Excel(String filePath) {
+        this.filePath = filePath;
+    }
 
     public Excel(String filePath, List<Column> listColumns, boolean isFirstRow, int sheetIndex) {
         this.filePath = filePath;

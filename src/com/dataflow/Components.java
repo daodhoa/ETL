@@ -1,16 +1,20 @@
 package com.dataflow;
 
-import com.dataflow.components.ExcelSourceComponent;
-import com.dataflow.components.SourceInterface;
-import com.dataflow.components.SqlServerSource;
+import com.dataflow.components.*;
 
 public class Components {
     private ExcelSourceComponent excelSourceComponent;
     private SqlServerSource sqlServerSource;
+    private DerivedColumn derivedColumn;
+    private SqlServerDestination sqlServerDestination;
+    private ExcelDestination excelDestination;
 
     public Components() {
         this.excelSourceComponent = null;
         this.sqlServerSource = null;
+        this.derivedColumn = null;
+        this.sqlServerDestination = null;
+        this.excelDestination = null;
     }
 
     public ExcelSourceComponent getExcelSourceComponent() {
@@ -38,4 +42,39 @@ public class Components {
         }
         return null;
     }
+
+    public DerivedColumn getDerivedColumn() {
+        return derivedColumn;
+    }
+
+    public void setDerivedColumn(DerivedColumn derivedColumn) {
+        this.derivedColumn = derivedColumn;
+    }
+
+    public SqlServerDestination getSqlServerDestination() {
+        return sqlServerDestination;
+    }
+
+    public void setSqlServerDestination(SqlServerDestination sqlServerDestination) {
+        this.sqlServerDestination = sqlServerDestination;
+    }
+
+    public ExcelDestination getExcelDestination() {
+        return excelDestination;
+    }
+
+    public void setExcelDestination(ExcelDestination excelDestination) {
+        this.excelDestination = excelDestination;
+    }
+
+    public DestinationInterface getDestination() {
+        if (this.excelDestination != null) {
+            return this.excelDestination;
+        }
+        if (this.sqlServerDestination != null) {
+            return this.sqlServerDestination;
+        }
+        return null;
+    }
+
 }

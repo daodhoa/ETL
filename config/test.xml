@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<dataFlow>
+    <connectionManagers>
+        <connectionManager refId="connectionManagers[EXCEL]" creationName="SQL_SERVER" objectName="EXCEL">
+            <connection path="C:\Users\Dao D. Hoa\Desktop\Book1.xlsx" isFirstRow="true">
+                <excelColumns>
+                    <excelColumn>
+                        <dataType>String</dataType>
+                        <length>100</length>
+                        <name>Name</name>
+                    </excelColumn>
+                    <excelColumn>
+                        <dataType>String</dataType>
+                        <length>100</length>
+                        <name>DiaChi</name>
+                    </excelColumn>
+                </excelColumns>
+                <sheetIndex>0</sheetIndex>
+            </connection>
+        </connectionManager>
+        <connectionManager refId="connectionManagers[DESKTOP-IC03QCJ\DAODHOA.BookOnline]" creationName="SQL_SERVER" objectName="DESKTOP-IC03QCJ\DAODHOA.BookOnline">
+            <connection database="BookOnline" hostname="DESKTOP-IC03QCJ\DAODHOA" password="123456" username="sa">
+                <tableName>Destination</tableName>
+            </connection>
+        </connectionManager>
+    </connectionManagers>
+    <executables>
+        <pineline>
+            <components>
+                <excelSourceComponent>
+                    <connectionManagerRefId>connectionManagers[EXCEL]</connectionManagerRefId>
+                    <outputs>
+                        <outputColumn id="DataFlow.ExcelSource.Outputs[ExcelSourceOutput].Columns[Name]">
+                            <dataType>String</dataType>
+                            <length>100</length>
+                            <name>Name</name>
+                        </outputColumn>
+                        <outputColumn id="DataFlow.ExcelSource.Outputs[ExcelSourceOutput].Columns[DiaChi]">
+                            <dataType>String</dataType>
+                            <length>100</length>
+                            <name>DiaChi</name>
+                        </outputColumn>
+                    </outputs>
+                </excelSourceComponent>
+                <sqlServerDestination>
+                    <connectionManagerRefId>connectionManagers[DESKTOP-IC03QCJ\DAODHOA.BookOnline]</connectionManagerRefId>
+                    <inputColumns linearId="DataFlow.ExcelSource.Outputs[ExcelSourceOutput].Columns[Name]">
+                        <dataType>varchar</dataType>
+                        <length>100</length>
+                        <name>Copy of aname</name>
+                    </inputColumns>
+                    <inputColumns linearId="DataFlow.ExcelSource.Outputs[ExcelSourceOutput].Columns[DiaChi]">
+                        <dataType>varchar</dataType>
+                        <length>50</length>
+                        <name>Copy of username</name>
+                    </inputColumns>
+                    <tableName>Destination</tableName>
+                </sqlServerDestination>
+            </components>
+        </pineline>
+    </executables>
+</dataFlow>

@@ -57,6 +57,13 @@ public class ExcelColumnConfig implements Initializable {
     private void showContent(String filePath, int sheetIndex, boolean isFirstRow) throws IOException {
         ExcelConnection excelConnection = new ExcelConnection(filePath);
         List<Column> listColumns = excelConnection.getColumn(sheetIndex, isFirstRow);
+        if (listColumns == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("This sheet is empty");
+            alert.showAndWait();
+            closeStage();
+            return;
+        }
         this.listColumns = listColumns;
         fillToListView();
     }

@@ -4,11 +4,9 @@ package com.services;
         import com.model.Column;
         import com.model.Excel;
 
+        import javax.sql.RowSet;
         import java.io.IOException;
-        import java.sql.Connection;
-        import java.sql.PreparedStatement;
-        import java.sql.ResultSet;
-        import java.sql.SQLException;
+        import java.sql.*;
         import java.util.ArrayList;
         import java.util.HashMap;
         import java.util.List;
@@ -71,11 +69,37 @@ public class SqlServerService {
                 columnLength = (int) length;
             } catch (Exception e) {
                 columnLength = 100;
-                e.printStackTrace();
                 System.out.println("Error when cast to int");
             }
             column.setLength(columnLength);
             listOutputColumns.add(column);
+        }
+
+        return listOutputColumns;
+    }
+
+    public Map<String, Column> getMapColumns(String tableName) throws SQLException {
+        Map<String, Column> listOutputColumns = new HashMap<>();
+        String sqlString = "Select COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
+                "from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = ?";
+        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+        preparedStatement.setString(1, tableName);
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            Column column = new Column();
+            column.setName(rs.getString(1));
+            column.setDataType(rs.getString(2));
+            Object length = rs.getObject(3);
+            int columnLength;
+            try {
+                columnLength = (int) length;
+            } catch (Exception e) {
+                columnLength = 100;
+                e.printStackTrace();
+                System.out.println("Error when cast to int");
+            }
+            column.setLength(columnLength);
+            listOutputColumns.put(column.getName(), column);
         }
 
         return listOutputColumns;
@@ -110,6 +134,22 @@ public class SqlServerService {
             int row = preparedStatement.executeUpdate();
             System.out.println(row);
         }
+    }
 
+    public List<List<String>> getDataFromTable(String tableName) throws SQLException {
+        List<List<String>> listDataFromTables = new ArrayList<>();
+        String sqlString = "Select * from " + tableName;
+        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+        ResultSet rs = preparedStatement.executeQuery();
+        ResultSetMetaData resultSetMetaData = rs.getMetaData();
+        int numberOfColumn = resultSetMetaData.getColumnCount();
+        while (rs.next()) {
+            List<String> listOneRow = new ArrayList<>();
+            for (int i = 1; i <= numberOfColumn; i++) {
+                listOneRow.add(String.valueOf(rs.getObject(i)));
+            }
+            listDataFromTables.add(listOneRow);
+        }
+        return listDataFromTables;
     }
 }

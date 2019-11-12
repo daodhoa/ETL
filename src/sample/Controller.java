@@ -2,6 +2,9 @@ package sample;
 
 import com.dataflow.Components;
 import com.dataflow.DataFlow;
+import com.dataflow.Executables;
+import com.expression.ExpressionHelper;
+import com.services.ExecuteDataflow;
 import com.xml.XmlHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -56,6 +59,49 @@ public class Controller implements Initializable {
         try {
             Components components = dataFlow.getExecutables().getPineline().getComponents();
             if (components.getSource() == null) {
+                return false;
+            }
+        } catch (NullPointerException e) {
+            return false;
+        }
+        return true;
+    }
+
+    @FXML
+    private void openDestination() throws IOException {
+        if (checkSourceExist() == false) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("You must select source to transform");
+            alert.show();
+            return;
+        }
+
+        Parent root = FXMLLoader.load(getClass().getResource("destination/index.fxml"));
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.setTitle("Destination Configuration");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+    }
+
+    @FXML
+    private void execute() {
+        if (checkDestinationExist() == false) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("You must select destination to transform");
+            alert.show();
+            return;
+        }
+
+        ExecuteDataflow executeDataflow = new ExecuteDataflow();
+        executeDataflow.execute();
+    }
+
+    private boolean checkDestinationExist() {
+        DataFlow dataFlow = Session.getDataFlow();
+        try {
+            Components components = dataFlow.getExecutables().getPineline().getComponents();
+            if (components.getDestination() == null) {
                 return false;
             }
         } catch (NullPointerException e) {

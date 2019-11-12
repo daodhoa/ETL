@@ -108,13 +108,13 @@ public class Index implements Initializable {
     @FXML
     public void showExcelColumnConfig() throws IOException {
         saveExcelToXml();
-        closeStage();
         Parent root = FXMLLoader.load(getClass().getResource("excel_column_config.fxml"));
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.setTitle("Source Configuration");
         stage.initModality(Modality.WINDOW_MODAL);
         stage.showAndWait();
+        closeStage();
     }
 
     private void saveExcelToXml() {
@@ -248,7 +248,7 @@ public class Index implements Initializable {
         closeStage();
     }
 
-    private void ssSaveSqlServerConfig(String tableName) throws SQLException, ClassNotFoundException {
+    private void ssSaveSqlServerConfig(String tableName) throws ClassNotFoundException {
         String hostName = ssHostnameTxt.getText().trim();
         String userName = ssUsernameTxt.getText().trim();
         String password = ssPasswordTxt.getText().trim();
@@ -269,9 +269,19 @@ public class Index implements Initializable {
 
         SqlServerConnection sqlServerConnection = new SqlServerConnection(hostName, userName, password);
         sqlServerConnection.setDatabaseName(database);
-        Connection conn = sqlServerConnection.getConnection();
+        Connection conn = null;
+        try {
+            conn = sqlServerConnection.getConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         SqlServerService sqlServerService = new SqlServerService(conn);
-        List<Column> outputColumns = sqlServerService.getListOutputColumns(tableName);
+        List<Column> outputColumns = null;
+        try {
+            outputColumns = sqlServerService.getListOutputColumns(tableName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         outputColumns.forEach(column -> {
             column.setId("DataFlow.SqlServerSource.Outputs[SqlServerSourceOutput].Columns["+ column.getName() +"]");
         });

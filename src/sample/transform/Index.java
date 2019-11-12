@@ -1,8 +1,15 @@
 package sample.transform;
 
+import com.dataflow.Components;
 import com.dataflow.DataFlow;
+import com.dataflow.components.DerivedColumn;
 import com.dataflow.components.SourceInterface;
+import com.dataflow.components.SqlServerSource;
+import com.expression.ExpressionEnums;
+import com.expression.ExpressionHelper;
 import com.model.Column;
+import com.services.ListHelper;
+import com.xml.XmlHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +24,7 @@ import sample.Session;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -33,7 +41,11 @@ public class Index implements Initializable {
     private ComboBox cbDataType;
 
     ObservableList observableList = FXCollections.observableArrayList();
-    private List<Column> listColumns;
+    private List<Column> listColumns = new ArrayList<>();
+
+    private List<String> listColumnNames = new ArrayList<>();
+    private List<Column> inputColumns = new ArrayList<>();
+    private List<Column> outputColumns = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -43,6 +55,9 @@ public class Index implements Initializable {
         DataFlow dataFlow = Session.getDataFlow();
         SourceInterface source = dataFlow.getExecutables().getPineline().getComponents().getSource();
         List<Column> listCurrentColumns = source.getOutputColumns();
+        listCurrentColumns.forEach(column -> {
+            listColumns.add(column);
+        });
         fillToListView(listCurrentColumns);
     }
 
@@ -50,6 +65,7 @@ public class Index implements Initializable {
         observableList.clear();
         listView.getItems().clear();
         listColumns.forEach(column -> {
+            listColumnNames.add(column.getName());
             observableList.add(column.getName());
         });
         listView.getItems().addAll(observableList);
@@ -81,7 +97,43 @@ public class Index implements Initializable {
         if (!validate()) {
             return;
         }
-        System.out.println("Yes");
+        ExpressionHelper expressionHelper = new ExpressionHelper();
+        ExpressionEnums match = expressionHelper.checkRegex(txtExpression.getText().trim());
+        if (match == ExpressionEnums.NONE) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Wrong Expression");
+            alert.show();
+            return;
+        }
+        saveToListView();
+    }
+
+    private void saveToListView() {
+        String columnName = ExpressionHelper.getColumnName(txtExpression.getText().trim());
+
+        Column inputColumn = ListHelper.searchListColumn(listColumns, columnName);
+        if (inputColumn == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Column in expression is not found!");
+            alert.show();
+            return;
+        }
+        String linearId = inputColumn.getId();
+        inputColumns.add(inputColumn);
+
+        Column column = new Column();
+        column.setName(txtName.getText().trim());
+        column.setId("DataFlow.DerivedColumn.Outputs[DerivedColumnOutput].Columns["+ column.getName() + "]");
+        column.setDataType("String");
+        column.setLength(Integer.valueOf(txtSize.getText().trim()));
+        column.setLinearId(linearId);
+        column.setExpression(txtExpression.getText());
+
+        listColumns.add(column);
+        outputColumns.add(column);
+        fillToListView(listColumns);
+
+        reset();
     }
 
     @FXML
@@ -99,5 +151,26 @@ public class Index implements Initializable {
         stage.setTitle("Expression Tutorial");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
+    }
+
+    @FXML
+    private void saveAndClose() {
+        DataFlow dataFlow = Session.getDataFlow();
+        Components components = dataFlow.getExecutables().getPineline().getComponents();
+
+        DerivedColumn derivedColumn = new DerivedColumn();
+        derivedColumn.setInputColumns(inputColumns);
+        derivedColumn.setOutputColumns(outputColumns);
+        components.setDerivedColumn(derivedColumn);
+
+        dataFlow.getExecutables().getPineline().setComponents(components);
+        XmlHelper.Dataflow2Xml(dataFlow);
+        closeStage();
+    }
+
+    @FXML
+    private void closeStage() {
+        Stage stage = (Stage) listView.getScene().getWindow();
+        stage.close();
     }
 }

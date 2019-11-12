@@ -7,10 +7,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ConnectionManager {
     private ExcelManager excelManager;
     private SqlServerManager sqlServerManager;
+    private SqlServerManager sqlServerManagerDestination;
+    private ExcelManager excelManagerDestination;
 
     public ConnectionManager() {
         this.excelManager = null;
         this.sqlServerManager = null;
+        this.sqlServerManagerDestination = null;
+        this.excelManagerDestination = null;
     }
 
     public ExcelManager getExcelManager() {
@@ -29,5 +33,20 @@ public class ConnectionManager {
     @XmlElement(name = "connectionManager")
     public void setSqlServerManager(SqlServerManager sqlServerManager) {
         this.sqlServerManager = sqlServerManager;
+    }
+
+    public SqlServerManager getSqlServerManagerDestination() {
+        return sqlServerManagerDestination;
+    }
+    @XmlElement(name = "connectionManager")
+    public void setSqlServerManagerDestination(SqlServerManager sqlServerManagerDestination) {
+        this.sqlServerManagerDestination = sqlServerManagerDestination;
+    }
+    public ExcelManager getExcelManagerDestination() {
+        return excelManagerDestination;
+    }
+    @XmlElement(name = "connectionManager")
+    public void setExcelManagerDestination(ExcelManager excelManagerDestination) {
+        this.excelManagerDestination = excelManagerDestination;
     }
 }

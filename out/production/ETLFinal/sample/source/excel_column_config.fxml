@@ -43,7 +43,11 @@
             </AnchorPane>
          </center>
          <left>
-            <ListView fx:id="listColumnView" editable="true" onEditStart="#showColumnDetail" onMouseClicked="#showColumnDetail" prefHeight="338.0" prefWidth="112.0" BorderPane.alignment="CENTER" />
+            <Pane>
+               <children>
+                  <ListView fx:id="listColumnView" editable="true" layoutX="9.0" layoutY="36.0" onEditStart="#showColumnDetail" onMouseClicked="#showColumnDetail" prefHeight="213.0" prefWidth="103.0" BorderPane.alignment="CENTER" />
+               </children>
+            </Pane>
          </left>
          <top>
             <Pane prefHeight="38.0" prefWidth="600.0" BorderPane.alignment="CENTER" />

@@ -17,7 +17,7 @@ public class ExcelManager {
     public ExcelManager(Excel excel) {
         this.excel = excel;
         this.objectName = "EXCEL";
-        this.creationName = "SQL_SERVER";
+        this.creationName = "EXCEL";
         this.refId = "connectionManagers[" + objectName + "]";
     }
 
