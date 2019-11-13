@@ -1,10 +1,13 @@
 package sample.destination;
 
 import com.connection.ExcelConnection;
+import com.connection.MysqlConnection;
 import com.connection.SqlServerConnection;
 import com.dataflow.DataFlow;
 import com.model.Excel;
+import com.model.MySql;
 import com.model.SqlServer;
+import com.services.MysqlService;
 import com.services.SqlServerService;
 import com.xml.XmlHelper;
 import javafx.fxml.FXML;
@@ -46,6 +49,17 @@ public class Index implements Initializable {
     private TextField ssDatabaseTxt;
     @FXML
     private ComboBox ssTableCb;
+
+    @FXML
+    private TextField myHostnameTxt;
+    @FXML
+    private TextField myUsernameTxt;
+    @FXML
+    private PasswordField myPasswordTxt;
+    @FXML
+    private TextField myDatabaseTxt;
+    @FXML
+    private ComboBox myTableCb;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -136,24 +150,14 @@ public class Index implements Initializable {
      *
      * */
     private boolean sqlServerValidate() {
-        String hostName = ssHostnameTxt.getText();
-        String userName = ssUsernameTxt.getText();
-        String password = ssPasswordTxt.getText();
-        String database = ssDatabaseTxt.getText();
-
-        if (hostName.trim().isEmpty() || userName.trim().isEmpty() ||
-                password.trim().isEmpty() || database.trim().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setContentText("Please fill full information");
-            alert.show();
-            return false;
-        }
-        return true;
+        return validate(ssHostnameTxt, ssUsernameTxt, ssPasswordTxt, ssDatabaseTxt);
     }
 
     private Connection testSSConnection() {
-        String userName = ssUsernameTxt.getText().trim();
-        String hostName = ssHostnameTxt.getText().trim();
+        String userName;
+        userName = ssUsernameTxt.getText().trim();
+        String hostName;
+        hostName = ssHostnameTxt.getText().trim();
         String password = ssPasswordTxt.getText().trim();
         String database = ssDatabaseTxt.getText().trim();
         SqlServerConnection sqlServerConnection = new SqlServerConnection(hostName, userName, password);
@@ -243,12 +247,129 @@ public class Index implements Initializable {
     }
 
     private void ssShowMappingConfig() throws IOException {
-        closeStage();
         Parent parent = FXMLLoader.load(getClass().getResource("ss_mapping_config.fxml"));
         Stage stage = new Stage();
         stage.setTitle("Mappings");
         stage.setScene(new Scene(parent));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
+        closeStage();
+    }
+
+    /**
+     * Mysql section
+     * */
+
+    private boolean myValidate() {
+        return validate(myHostnameTxt, myUsernameTxt, myPasswordTxt, myDatabaseTxt);
+    }
+
+    private boolean validate(TextField myHostnameTxt, TextField myUsernameTxt, PasswordField myPasswordTxt, TextField myDatabaseTxt) {
+        String hostName = myHostnameTxt.getText();
+        String userName = myUsernameTxt.getText();
+        String password = myPasswordTxt.getText();
+        String database = myDatabaseTxt.getText();
+
+        if (hostName.trim().isEmpty() || userName.trim().isEmpty() ||
+                password.trim().isEmpty() || database.trim().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Please fill full information");
+            alert.show();
+            return false;
+        }
+        return true;
+    }
+
+    private Connection myTestConnection() {
+        String hostName = myHostnameTxt.getText().trim();
+        String userName = myUsernameTxt.getText().trim();
+        String password = myPasswordTxt.getText().trim();
+        String database = myDatabaseTxt.getText().trim();
+        MysqlConnection mysqlConnection = new MysqlConnection(hostName, userName, password);
+        mysqlConnection.setDatabaseName(database);
+        Connection connection;
+        try {
+            connection = mysqlConnection.getConnection();
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (SQLException e) {
+            return null;
+        }
+        return connection;
+    }
+
+    private List<String> myGetListTable() throws SQLException {
+        String database = myDatabaseTxt.getText().trim();
+        Connection conn = myTestConnection();
+        if (conn != null) {
+            MysqlService mysqlService = new MysqlService(conn);
+            List<String> tableNames = mysqlService.getListTableNames(database);
+            return tableNames;
+        } else {
+            myTableCb.getItems().clear();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Connection failed!");
+            alert.show();
+            return null;
+        }
+    }
+
+    @FXML
+    private void myShowTableNames() throws SQLException {
+        if (!myValidate()) {
+            myTableCb.getItems().clear();
+            return;
+        }
+        myTableCb.getItems().clear();
+        List<String> listTableNames = myGetListTable();
+        listTableNames.forEach(name -> myTableCb.getItems().add(name));
+        myTableCb.show();
+    }
+
+    @FXML
+    private void myShowMappings() throws SQLException {
+        if (!myValidate()) {
+            myTableCb.getItems().clear();
+            return;
+        }
+
+        if (myGetListTable() == null) {
+            return;
+        }
+
+        if (myTableCb.getSelectionModel().getSelectedIndex() == -1) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setContentText("Please select table name");
+            alert.show();
+            return;
+        }
+        String tableName = (String) myTableCb.getSelectionModel().getSelectedItem();
+        mySaveTempConfig(tableName);
+        try {
+            myShowMappingConfig();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mySaveTempConfig(String tableName) {
+        String userName = myUsernameTxt.getText().trim();
+        String hostName = myHostnameTxt.getText().trim();
+        String password = myPasswordTxt.getText().trim();
+        String database = myDatabaseTxt.getText().trim();
+
+        MySql mySql = new MySql(hostName, userName, password, database);
+        mySql.setTableName(tableName);
+        XmlHelper.Mysql2Xml(mySql);
+    }
+
+    private void myShowMappingConfig() throws IOException {
+        Parent parent = FXMLLoader.load(getClass().getResource("my_mapping_config.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("Mappings");
+        stage.setScene(new Scene(parent));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+        closeStage();
     }
 }

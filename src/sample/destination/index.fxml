@@ -95,38 +95,42 @@
                      <children>
                         <Pane layoutX="44.0" layoutY="32.0">
                            <children>
-                              <Button layoutX="344.0" layoutY="209.0" mnemonicParsing="false" text="Select table" />
                               <Pane layoutX="3.0" prefHeight="47.0" prefWidth="509.0">
                                  <children>
                                     <Label layoutX="22.0" layoutY="9.0" prefHeight="30.0" prefWidth="66.0" text="Hostname" />
-                                    <TextField layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" />
+                                    <TextField fx:id="myHostnameTxt" layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" text="localhost" />
                                  </children>
                               </Pane>
                               <Pane layoutY="47.0" prefHeight="47.0" prefWidth="509.0">
                                  <children>
                                     <Label layoutX="22.0" layoutY="9.0" prefHeight="30.0" prefWidth="66.0" text="Username" />
-                                    <TextField layoutX="110.0" layoutY="11.0" prefHeight="25.0" prefWidth="311.0" />
+                                    <TextField fx:id="myUsernameTxt" layoutX="110.0" layoutY="11.0" prefHeight="25.0" prefWidth="311.0" text="root" />
                                  </children>
                               </Pane>
                               <Pane layoutY="101.0" prefHeight="47.0" prefWidth="509.0">
                                  <children>
                                     <Label layoutX="22.0" layoutY="9.0" prefHeight="30.0" prefWidth="66.0" text="Password" />
-                                    <PasswordField layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" />
+                                    <PasswordField fx:id="myPasswordTxt" layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" />
                                  </children>
                               </Pane>
                               <Pane layoutY="148.0" prefHeight="47.0" prefWidth="509.0">
                                  <children>
                                     <Label layoutX="22.0" layoutY="9.0" prefHeight="30.0" prefWidth="66.0" text="Database" />
-                                    <TextField layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" />
+                                    <TextField fx:id="myDatabaseTxt" layoutX="106.0" layoutY="11.0" prefHeight="25.0" prefWidth="315.0" />
                                  </children>
                               </Pane>
-                              <TextField editable="false" layoutX="174.0" layoutY="209.0" />
                            </children>
                         </Pane>
                         <Pane layoutX="385.0" layoutY="287.0" prefHeight="43.0" prefWidth="200.0">
                            <children>
-                              <Button layoutX="14.0" layoutY="9.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="76.0" text="Preview" />
-                              <Button layoutX="100.0" layoutY="9.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="76.0" text="OK" />
+                              <Button layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#closeStage" prefHeight="25.0" prefWidth="76.0" text="Cancel" />
+                              <Button layoutX="100.0" layoutY="9.0" mnemonicParsing="false" onAction="#myShowMappings" prefHeight="25.0" prefWidth="76.0" text="Mappings" />
+                           </children>
+                        </Pane>
+                        <Pane fx:id="selectTablePane1" layoutX="136.0" layoutY="243.0" prefHeight="25.0" prefWidth="420.0">
+                           <children>
+                              <Button layoutX="227.0" mnemonicParsing="false" onAction="#ssNewTable" prefHeight="25.0" prefWidth="82.0" text="New table" />
+                              <ComboBox fx:id="myTableCb" layoutX="29.0" onMouseClicked="#myShowTableNames" prefHeight="25.0" prefWidth="181.0" promptText="select table or new table" />
                            </children>
                         </Pane>
                      </children></AnchorPane>

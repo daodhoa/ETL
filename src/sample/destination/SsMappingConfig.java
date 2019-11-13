@@ -52,32 +52,7 @@ public class SsMappingConfig implements Initializable {
             e.printStackTrace();
         }
 
-        DataFlow dataFlow = Session.getDataFlow();
-        Components components = dataFlow.getExecutables().getPineline().getComponents();
-
-        components.getSource().getOutputColumns().forEach(column -> {
-            sourceColumns.add(column);
-        });
-
-        if (components.getDerivedColumn() != null) {
-            List<Column> derivedColumns = components.getDerivedColumn().getOutputColumns();
-            derivedColumns.forEach(column -> {
-                sourceColumns.add(column);
-            });
-        }
-
-        destinationListView.getItems().forEach(item -> {
-            ComboBox comboBox = new ComboBox();
-            comboBox.setMinWidth(130);
-            comboBox.setMaxHeight(15);
-            sourceColumns.forEach(column -> {
-                comboBox.getItems().add(column.getName());
-            });
-            comboBox.getSelectionModel().select(0);
-            observableList.add(comboBox);
-        });
-
-        mappingListView.getItems().addAll(observableList);
+        MyMappingConfig.bindToMappingListView(sourceColumns, destinationListView, observableList, mappingListView);
     }
 
     @FXML

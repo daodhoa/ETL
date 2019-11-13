@@ -1,55 +1,20 @@
 package com.services;
+import com.model.Column;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-        import com.connection.ExcelConnection;
-        import com.model.Column;
-        import com.model.Excel;
+public class SqlServerService extends SqlService{
 
-        import javax.sql.RowSet;
-        import java.io.IOException;
-        import java.sql.*;
-        import java.util.ArrayList;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
-
-public class SqlServerService {
-    private Connection connection;
     public SqlServerService(Connection connection) {
-        this.connection = connection;
+        super(connection);
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-
-    public List<String> getListTableNames() throws SQLException {
-        List<String> listTableNames = new ArrayList<>();
-        String sqlString = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
-        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
-        ResultSet rs = preparedStatement.executeQuery();
-
-        while (rs.next()) {
-            listTableNames.add(rs.getString(1));
-        }
-        return listTableNames;
-    }
-
-    public Map<String, Integer> getListColumns(String tableName) throws SQLException {
-        Map<String, Integer> listColumns = new HashMap<>();
-        String sqlString = "Select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = ?";
-        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
-        preparedStatement.setString(1, tableName);
-        ResultSet rs = preparedStatement.executeQuery();
-        int index = 0;
-        while (rs.next()) {
-            listColumns.put(rs.getString(1), index);
-            index ++;
-        }
-        return listColumns;
+    @Override
+    List<String> getListTableNames(String database) throws SQLException {
+        return null;
     }
 
     public List<Column> getListOutputColumns(String tableName) throws SQLException {
@@ -78,6 +43,32 @@ public class SqlServerService {
         return listOutputColumns;
     }
 
+    public List<String> getListTableNames() throws SQLException {
+        List<String> listTableNames = new ArrayList<>();
+        String sqlString = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'";
+        PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        while (rs.next()) {
+            listTableNames.add(rs.getString(1));
+        }
+        return listTableNames;
+    }
+
+    public Map<String, Integer> getListColumns(String tableName) throws SQLException {
+        Map<String, Integer> listColumns = new HashMap<>();
+        String sqlString = "Select COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = ?";
+        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+        preparedStatement.setString(1, tableName);
+        ResultSet rs = preparedStatement.executeQuery();
+        int index = 0;
+        while (rs.next()) {
+            listColumns.put(rs.getString(1), index);
+            index ++;
+        }
+        return listColumns;
+    }
+
     public Map<String, Column> getMapColumns(String tableName) throws SQLException {
         Map<String, Column> listOutputColumns = new HashMap<>();
         String sqlString = "Select COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH " +
@@ -103,53 +94,5 @@ public class SqlServerService {
         }
 
         return listOutputColumns;
-    }
-
-    public void execute(String tableName, Map<String, Integer> mappings, Excel excel) throws IOException, SQLException {
-        ExcelConnection excelConnection = new ExcelConnection(excel.getFilePath());
-        List<List<String>> listData = excelConnection.getDataFromSheet(excel.getSheetIndex());
-        boolean isFirstRow = excel.isFirstRow();
-        int i = 0;
-        if (isFirstRow) i = 1;
-
-        String columns = "";
-        String values = "";
-        for (Map.Entry<String, Integer> entry: mappings.entrySet()) {
-            columns = columns + entry.getKey() + ", ";
-            values = values + "?, ";
-        }
-
-        columns = columns.substring(0, columns.length() - 2);
-        values = values.substring(0, values.length() - 2);
-
-        for ( ; i < listData.size(); i++) {
-            List<String> listCellData = listData.get(i);
-            String sql = "INSERT INTO " + tableName + " ( " + columns + " ) VALUES (" + values +")" ;
-            PreparedStatement preparedStatement = this.connection.prepareStatement(sql);
-            int j = 1;
-            for (Map.Entry<String, Integer> entry: mappings.entrySet()) {
-                preparedStatement.setString(j, listCellData.get(entry.getValue()));
-                j++;
-            }
-            int row = preparedStatement.executeUpdate();
-            System.out.println(row);
-        }
-    }
-
-    public List<List<String>> getDataFromTable(String tableName) throws SQLException {
-        List<List<String>> listDataFromTables = new ArrayList<>();
-        String sqlString = "Select * from " + tableName;
-        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
-        ResultSet rs = preparedStatement.executeQuery();
-        ResultSetMetaData resultSetMetaData = rs.getMetaData();
-        int numberOfColumn = resultSetMetaData.getColumnCount();
-        while (rs.next()) {
-            List<String> listOneRow = new ArrayList<>();
-            for (int i = 1; i <= numberOfColumn; i++) {
-                listOneRow.add(String.valueOf(rs.getObject(i)));
-            }
-            listDataFromTables.add(listOneRow);
-        }
-        return listDataFromTables;
     }
 }

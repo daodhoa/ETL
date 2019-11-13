@@ -5,11 +5,11 @@ import java.sql.SQLException;
 import java.util.List;
 
 public abstract class DBConnection {
-    private String hostName;
-    private String userName;
-    private String password;
-    private String databaseName;
-    private String tableName;
+    protected String hostName;
+    protected String userName;
+    protected String password;
+    protected String databaseName;
+    protected String tableName;
 
     public DBConnection(String hostName, String userName, String password) {
         this.hostName = hostName;

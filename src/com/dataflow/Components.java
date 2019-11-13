@@ -8,13 +8,17 @@ public class Components {
     private DerivedColumn derivedColumn;
     private SqlServerDestination sqlServerDestination;
     private ExcelDestination excelDestination;
+    private MySqlSource mySqlSource;
+    private MysqlDestination mysqlDestination;
 
     public Components() {
+        this.mySqlSource = null;
         this.excelSourceComponent = null;
         this.sqlServerSource = null;
         this.derivedColumn = null;
         this.sqlServerDestination = null;
         this.excelDestination = null;
+        this.mysqlDestination = null;
     }
 
     public ExcelSourceComponent getExcelSourceComponent() {
@@ -40,7 +44,18 @@ public class Components {
         if (this.sqlServerSource != null) {
             return sqlServerSource;
         }
+        if (this.mySqlSource != null) {
+            return mySqlSource;
+        }
         return null;
+    }
+
+    public MySqlSource getMySqlSource() {
+        return mySqlSource;
+    }
+
+    public void setMySqlSource(MySqlSource mySqlSource) {
+        this.mySqlSource = mySqlSource;
     }
 
     public DerivedColumn getDerivedColumn() {
@@ -74,7 +89,17 @@ public class Components {
         if (this.sqlServerDestination != null) {
             return this.sqlServerDestination;
         }
+        if (this.mysqlDestination != null) {
+            return this.mysqlDestination;
+        }
         return null;
     }
 
+    public MysqlDestination getMysqlDestination() {
+        return mysqlDestination;
+    }
+
+    public void setMysqlDestination(MysqlDestination mysqlDestination) {
+        this.mysqlDestination = mysqlDestination;
+    }
 }

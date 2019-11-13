@@ -9,12 +9,16 @@ public class ConnectionManager {
     private SqlServerManager sqlServerManager;
     private SqlServerManager sqlServerManagerDestination;
     private ExcelManager excelManagerDestination;
+    private MySqlManager mySqlManager;
+    private MySqlManager mySqlManagerDestination;
 
     public ConnectionManager() {
+        this.mySqlManager = null;
         this.excelManager = null;
         this.sqlServerManager = null;
         this.sqlServerManagerDestination = null;
         this.excelManagerDestination = null;
+        this.mySqlManagerDestination = null;
     }
 
     public ExcelManager getExcelManager() {
@@ -48,5 +52,20 @@ public class ConnectionManager {
     @XmlElement(name = "connectionManager")
     public void setExcelManagerDestination(ExcelManager excelManagerDestination) {
         this.excelManagerDestination = excelManagerDestination;
+    }
+    public MySqlManager getMySqlManager() {
+        return mySqlManager;
+    }
+    @XmlElement(name = "connectionManager")
+    public void setMySqlManager(MySqlManager mySqlManager) {
+        this.mySqlManager = mySqlManager;
+    }
+
+    public MySqlManager getMySqlManagerDestination() {
+        return mySqlManagerDestination;
+    }
+    @XmlElement(name = "connectionManager")
+    public void setMySqlManagerDestination(MySqlManager mySqlManagerDestination) {
+        this.mySqlManagerDestination = mySqlManagerDestination;
     }
 }

@@ -1,12 +1,16 @@
 package sample.source;
 
 import com.connection.ExcelConnection;
+import com.connection.MysqlConnection;
 import com.connection.SqlServerConnection;
 import com.dataflow.*;
+import com.dataflow.components.MySqlSource;
 import com.dataflow.components.SqlServerSource;
 import com.model.Column;
 import com.model.Excel;
+import com.model.MySql;
 import com.model.SqlServer;
+import com.services.MysqlService;
 import com.services.SqlServerService;
 import com.xml.XmlHelper;
 import javafx.fxml.FXML;
@@ -52,9 +56,20 @@ public class Index implements Initializable {
     private TextField ssDatabaseTxt;
     @FXML
     private PasswordField ssPasswordTxt;
-
     @FXML
     private ComboBox ssTableCb;
+
+    @FXML
+    private TextField myHostnameTxt;
+    @FXML
+    private TextField myUsernameTxt;
+    @FXML
+    private TextField myDatabaseTxt;
+    @FXML
+    private PasswordField myPasswordTxt;
+    @FXML
+    private ComboBox myTableCb;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -63,6 +78,7 @@ public class Index implements Initializable {
             buttonPane.setVisible(false);
         }
         ssTableCb.setVisible(false);
+        myTableCb.setVisible(false);
     }
 
     public void closeStage() {
@@ -296,5 +312,122 @@ public class Index implements Initializable {
         dataFlow.setExecutables(executables);
 
         XmlHelper.Dataflow2Xml(dataFlow);
+    }
+
+    /**
+     * Mysql section
+     * */
+
+    private boolean myValidate() {
+        String hostName = myHostnameTxt.getText().trim();
+        String userName = myUsernameTxt.getText().trim();
+        String password = myPasswordTxt.getText().trim();
+        String database = myDatabaseTxt.getText().trim();
+        if (hostName.isEmpty() || userName.isEmpty() || password.isEmpty() || database.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Please fill full!");
+            alert.show();
+            return false;
+        }
+        return true;
+    }
+
+    private Connection myTestConnection() {
+        Connection connection;
+        String hostName = myHostnameTxt.getText().trim();
+        String userName = myUsernameTxt.getText().trim();
+        String password = myPasswordTxt.getText().trim();
+        String database = myDatabaseTxt.getText().trim();
+        MysqlConnection mysqlConnection = new MysqlConnection(hostName, userName, password);
+        mysqlConnection.setDatabaseName(database);
+        try {
+            connection = mysqlConnection.getConnection();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return connection;
+    }
+
+    @FXML
+    private void myShowTableSelected() throws SQLException, ClassNotFoundException {
+        if (!myValidate()) {
+            return;
+        }
+
+        String database = myDatabaseTxt.getText().trim();
+        Connection connection = myTestConnection();
+        if (connection == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Connection failed!");
+            alert.show();
+            return;
+        }
+        myTableCb.setVisible(true);
+        myTableCb.getItems().clear();
+
+        MysqlService mysqlService = new MysqlService(connection);
+        List<String> listTableNames = mysqlService.getListTableNames(database);
+        listTableNames.forEach(table -> {
+            myTableCb.getItems().add(table);
+        });
+    }
+
+    @FXML
+    private void myHandleOk() throws SQLException, ClassNotFoundException {
+        Connection connection = myTestConnection();
+        if (connection == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Connection failed!");
+            alert.show();
+            return;
+        }
+
+        int selectedIndex = myTableCb.getSelectionModel().getSelectedIndex();
+        if (selectedIndex == -1) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setContentText("Please select table name!");
+            alert.show();
+            return;
+        }
+
+        String hostName = myHostnameTxt.getText().trim();
+        String userName = myUsernameTxt.getText().trim();
+        String password = myPasswordTxt.getText().trim();
+        String database = myDatabaseTxt.getText().trim();
+
+        DataFlow dataFlow = Session.getDataFlow();
+        dataFlow.refresh();
+
+        MySql mySql = new MySql(hostName, userName, password, database);
+        MySqlManager mySqlManager = new MySqlManager(mySql);
+        ConnectionManager connectionManager = new ConnectionManager();
+        connectionManager.setMySqlManager(mySqlManager);
+        dataFlow.setConnectionManager(connectionManager);
+
+        String tableName = (String) myTableCb.getSelectionModel().getSelectedItem();
+        MySqlSource mySqlSource = new MySqlSource();
+        mySqlSource.setTableName(tableName);
+        mySqlSource.setConnectionManagerRefId(mySqlManager.getRefId());
+
+        MysqlService mysqlService = new MysqlService(connection);
+        List<Column> outputColumns  = mysqlService.getListOutputColumns(tableName, database);
+        outputColumns.forEach(column -> {
+            column.setId("DataFlow.MySqlSource.Outputs[MySqlSourceOutput].Columns["+ column.getName() +"]");
+        });
+        mySqlSource.setOutputColumns(outputColumns);
+        Components components = new Components();
+        components.setMySqlSource(mySqlSource);
+        Pineline pineline = new Pineline();
+        pineline.setComponents(components);
+        Executables executables = new Executables();
+        executables.setPineline(pineline);
+        dataFlow.setExecutables(executables);
+
+        XmlHelper.Dataflow2Xml(dataFlow);
+        closeStage();
     }
 }

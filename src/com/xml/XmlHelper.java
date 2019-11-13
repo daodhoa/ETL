@@ -4,6 +4,7 @@ import com.dataflow.ConnectionManager;
 import com.dataflow.DataFlow;
 import com.model.Column;
 import com.model.Excel;
+import com.model.MySql;
 import com.model.SqlServer;
 
 import javax.xml.bind.JAXBContext;
@@ -52,6 +53,36 @@ public class XmlHelper {
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             SqlServer sqlServer = (SqlServer) jaxbUnmarshaller.unmarshal(sqlFile);
             return sqlServer;
+        }
+        catch (JAXBException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void Mysql2Xml(MySql mySql) {
+        File file = new File("config/mysql_temp.xml");
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(MySql.class);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(mySql, file);
+        } catch (JAXBException e) {
+            System.out.println("Loi khoi tao");
+            e.printStackTrace();
+        }
+    }
+
+    public static MySql Xml2Mysql(String filePath) {
+        File sqlFile = new File(filePath);
+        JAXBContext jaxbContext;
+        try
+        {
+            jaxbContext = JAXBContext.newInstance(MySql.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            MySql mySql = (MySql) jaxbUnmarshaller.unmarshal(sqlFile);
+            return mySql;
         }
         catch (JAXBException e)
         {
