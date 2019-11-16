@@ -67,4 +67,41 @@ abstract class SqlService {
         }
         return listDataFromTables;
     }
+
+    public boolean insertDataToTable(String sqlString, List<Column> listInputColumns, List<Map<String, String>> listInputDataToDestination) {
+        listInputColumns.forEach(column -> {
+            System.out.println(column.getId() + ": " + column.getName());
+        });
+
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = connection.prepareStatement(sqlString);
+            connection.setAutoCommit(false);
+            try {
+                for (int i = 0; i < listInputDataToDestination.size(); i++) {
+                    Map<String, String> mapOneRow = listInputDataToDestination.get(i);
+                    System.out.println("Khong thuc hien");
+                    for (int j = 0; j < listInputColumns.size(); j ++) {
+                        preparedStatement.setObject(j + 1, mapOneRow.get(listInputColumns.get(j).getLinearId()));
+                    }
+
+                    preparedStatement.addBatch();
+                    if (i == 100 || i == listInputDataToDestination.size() - 1) {
+                        System.out.println("Thuc hien query");
+                        preparedStatement.executeBatch();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                connection.rollback();
+                return false;
+            }
+            connection.commit();
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 }

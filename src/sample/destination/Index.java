@@ -3,7 +3,6 @@ package sample.destination;
 import com.connection.ExcelConnection;
 import com.connection.MysqlConnection;
 import com.connection.SqlServerConnection;
-import com.dataflow.DataFlow;
 import com.model.Excel;
 import com.model.MySql;
 import com.model.SqlServer;
@@ -201,7 +200,19 @@ public class Index implements Initializable {
 
     @FXML
     private void ssNewTable() throws IOException {
-        Parent parent = FXMLLoader.load(getClass().getResource("new_table.fxml"));
+        if (!sqlServerValidate()) {
+            return;
+        }
+
+        if (testSSConnection() == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Connection failed!");
+            alert.show();
+            return;
+        }
+
+        ssSaveTempConfig(null);
+        Parent parent = FXMLLoader.load(getClass().getResource("ss_new_table.fxml"));
         Stage stage = new Stage();
         stage.setTitle("New Table");
         stage.setScene(new Scene(parent));

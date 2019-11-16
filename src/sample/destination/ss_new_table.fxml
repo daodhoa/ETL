@@ -7,10 +7,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane prefHeight="291.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.destination.NewTable">
+<AnchorPane prefHeight="291.0" prefWidth="407.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.destination.SsNewTable">
    <children>
-      <TextArea layoutX="30.0" layoutY="36.0" prefHeight="197.0" prefWidth="343.0">
+      <TextArea fx:id="txtNewTable" layoutX="30.0" layoutY="36.0" prefHeight="197.0" prefWidth="343.0">
          <font>
             <Font size="15.0" />
          </font>

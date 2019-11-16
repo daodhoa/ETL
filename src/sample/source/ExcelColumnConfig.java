@@ -3,6 +3,7 @@ package sample.source;
 import com.connection.ExcelConnection;
 import com.dataflow.*;
 import com.dataflow.components.ExcelSourceComponent;
+import com.enums.DataType;
 import com.model.Column;
 import com.model.Excel;
 import com.xml.XmlHelper;
@@ -12,10 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import sample.Session;
 
@@ -23,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ExcelColumnConfig implements Initializable {
@@ -32,6 +31,9 @@ public class ExcelColumnConfig implements Initializable {
 
     @FXML
     private TextField txtColumnName, txtColumnLength;
+
+    @FXML
+    private ComboBox cbDataType;
 
     @FXML
     private Button cancelButton;
@@ -51,6 +53,12 @@ public class ExcelColumnConfig implements Initializable {
             showContent(filePath, sheetIndex, isFirstRow);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        Map<DataType, String> mapDataType = Session.getMapDataType();
+
+        for (Map.Entry<DataType, String> entry : mapDataType.entrySet()) {
+            cbDataType.getItems().add(entry.getKey());
         }
     }
 

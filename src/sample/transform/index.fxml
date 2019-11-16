@@ -24,7 +24,7 @@
                   <Font size="15.0" />
                </font>
             </Label>
-            <ListView fx:id="listView" layoutY="55.0" prefHeight="238.0" prefWidth="221.0" />
+            <ListView fx:id="listView" layoutX="9.0" layoutY="55.0" prefHeight="238.0" prefWidth="212.0" />
          </children>
          <BorderPane.margin>
             <Insets />

@@ -103,9 +103,15 @@ public class ExcelConnection {
         workbook.close();
     }
 
-    public void insertDataToSheet(int sheetIndex, List<Column> listInputColumns,
-                                  List<Map<String, String>> listInputDataToDestination) throws IOException {
-        Workbook workbook = this.readExcel();
+    public boolean insertDataToSheet(int sheetIndex, List<Column> listInputColumns,
+                                  List<Map<String, String>> listInputDataToDestination) {
+        Workbook workbook = null;
+        try {
+            workbook = this.readExcel();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
         Sheet sheet = workbook.getSheetAt(sheetIndex);
 
         int currentRow = sheet.getLastRowNum();
@@ -127,9 +133,19 @@ public class ExcelConnection {
             }
         }
 
-        OutputStream outputStream = new FileOutputStream(getFilePath());
-        workbook.write(outputStream);
-        workbook.close();
+        OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(getFilePath());
+            workbook.write(outputStream);
+            workbook.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
         System.out.println("Write successfully");
+        return true;
     }
 }

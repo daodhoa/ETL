@@ -1,6 +1,7 @@
 package com.services;
 
 import com.connection.ExcelConnection;
+import com.connection.MysqlConnection;
 import com.connection.SqlServerConnection;
 import com.dataflow.DataFlow;
 import com.dataflow.ExcelManager;
@@ -9,7 +10,9 @@ import com.dataflow.components.*;
 import com.expression.ExpressionHelper;
 import com.model.Column;
 import com.model.Excel;
+import com.model.MySql;
 import com.model.SqlServer;
+import javafx.scene.control.Alert;
 import sample.Session;
 
 import java.io.IOException;
@@ -111,69 +114,99 @@ public class ExecuteDataflow {
     public void execute() {
         List<Map<String, String>> listData = this.getDataFormSource();
         List<Map<String, String>> listInputDataToDestination = getInputToDestination(listData);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setContentText("Connection failed!");
+        Alert success = new Alert(Alert.AlertType.INFORMATION);
+        success.setContentText("Execute successfully");
+        Alert error = new Alert(Alert.AlertType.ERROR);
+        error.setContentText("Something went wrong!");
 
         DestinationInterface destination = Session.getDataFlow().getExecutables()
                 .getPineline().getComponents().getDestination();
         if (destination instanceof SqlServerDestination) {
             List<Column> listInputColumns = ((SqlServerDestination) destination).getInputColumns();
             String tableName = ((SqlServerDestination) destination).getTableName();
-            String columnToInsert = "";
-            String valueToInsert = "";
-            for (int i = 0; i < listInputColumns.size(); i++) {
-                columnToInsert += "[" +listInputColumns.get(i).getName() + "]" + ", ";
-                valueToInsert += "?, ";
-            }
-            columnToInsert = columnToInsert.substring(0, columnToInsert.length() - 2);
-            valueToInsert = valueToInsert.substring(0, valueToInsert.length() - 2);
 
-            String sqlString = "insert into " + tableName + " (" + columnToInsert + ")"
-                    + " values (" + valueToInsert +")";
-
+            String sqlString = buildSqlString(tableName, listInputColumns, false);
             SqlServer sqlServer = dataFlow.getConnectionManager().getSqlServerManagerDestination().getSqlServer();
             SqlServerConnection sqlServerConnection =
                     new SqlServerConnection(sqlServer.getHostname(), sqlServer.getUsername(), sqlServer.getPassword());
             sqlServerConnection.setDatabaseName(sqlServer.getDatabase());
             try {
                 Connection connection = sqlServerConnection.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sqlString);
-
-                connection.setAutoCommit(false);
-                try {
-                    for (int i = 0; i < listInputDataToDestination.size(); i++) {
-                        Map<String, String> mapOneRow = listInputDataToDestination.get(i);
-                        System.out.println("Khong thuc hien");
-                        for (int j = 0; j < listInputColumns.size(); j ++) {
-                            preparedStatement.setObject(j + 1, mapOneRow.get(listInputColumns.get(j).getLinearId()));
-                        }
-
-                        preparedStatement.addBatch();
-                        if (i == 100 || i == listInputDataToDestination.size() - 1) {
-                            System.out.println("Thuc hien query");
-                            preparedStatement.executeBatch();
-                        }
-                    }
-                } catch (Exception e) {
-                    connection.rollback();
+                SqlServerService sqlServerService = new SqlServerService(connection);
+                boolean status = sqlServerService.insertDataToTable(sqlString, listInputColumns, listInputDataToDestination);
+                if (status) {
+                    success.show();
+                } else {
+                    error.show();
                 }
-                connection.commit();
-                connection.close();
-
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                alert.show();
             } catch (SQLException e) {
-                e.printStackTrace();
+                alert.show();
             }
+            return;
+        }
+
+        if (destination instanceof MysqlDestination) {
+            List<Column> listInputColumns = ((MysqlDestination) destination).getInputColumns();
+            String tableName = ((MysqlDestination) destination).getTableName();
+            String sqlString = buildSqlString(tableName, listInputColumns, true);
+            MySql mySql = dataFlow.getConnectionManager().getMySqlManagerDestination().getMySql();
+            MysqlConnection mysqlConnection = new MysqlConnection(mySql.getHostname(), mySql.getUsername(), mySql.getPassword());
+            mysqlConnection.setDatabaseName(mySql.getDatabase());
+            try {
+                Connection connection = mysqlConnection.getConnection();
+                MysqlService mysqlService = new MysqlService(connection);
+                boolean status = mysqlService.insertDataToTable(sqlString, listInputColumns, listInputDataToDestination);
+                if (status) {
+                    success.show();
+                } else {
+                    error.show();
+                }
+            } catch (ClassNotFoundException e) {
+                alert.show();
+            } catch (SQLException e) {
+                alert.show();
+            }
+            return;
         }
 
         if (destination instanceof ExcelDestination) {
             List<Column> listInputColumns =  ((ExcelDestination) destination).getInputColumns();
             Excel excel = dataFlow.getConnectionManager().getExcelManagerDestination().getExcel();
             ExcelConnection excelConnection = new ExcelConnection(excel.getFilePath());
-            try {
-                excelConnection.insertDataToSheet(excel.getSheetIndex(), listInputColumns, listInputDataToDestination);
-            } catch (IOException e) {
-                e.printStackTrace();
+            boolean status = excelConnection.insertDataToSheet(excel.getSheetIndex(), listInputColumns, listInputDataToDestination);
+            if (status) {
+                success.show();
+            } else {
+                error.show();
+            }
+            return;
+        }
+    }
+
+    private String buildSqlString(String tableName, List<Column> listInputColumns, boolean isMysql) {
+        String columnToInsert = "";
+        String valueToInsert = "";
+        if (isMysql) {
+            for (int i = 0; i < listInputColumns.size(); i++) {
+                columnToInsert += listInputColumns.get(i).getName() + ", ";
+                valueToInsert += "?, ";
+            }
+        } else {
+            for (int i = 0; i < listInputColumns.size(); i++) {
+                columnToInsert += "[" +listInputColumns.get(i).getName() + "]" + ", ";
+                valueToInsert += "?, ";
             }
         }
+
+        columnToInsert = columnToInsert.substring(0, columnToInsert.length() - 2);
+        valueToInsert = valueToInsert.substring(0, valueToInsert.length() - 2);
+
+        String sqlString = "insert into " + tableName + " (" + columnToInsert + ")"
+                + " values (" + valueToInsert +")";
+        return sqlString;
     }
 }

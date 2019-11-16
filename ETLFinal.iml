@@ -10,5 +10,6 @@
     <orderEntry type="library" name="org.apache.poi:poi-ooxml:4.1.0" level="project" />
     <orderEntry type="library" name="sqljdbc421" level="project" />
     <orderEntry type="library" name="mysql-connector-java-8.0.18" level="project" />
+    <orderEntry type="library" name="org.apache.directory.studio:org.apache.commons.io:2.4" level="project" />
   </component>
 </module>
