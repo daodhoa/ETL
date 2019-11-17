@@ -5,6 +5,7 @@ import com.connection.MysqlConnection;
 import com.connection.SqlServerConnection;
 import com.dataflow.DataFlow;
 import com.dataflow.ExcelManager;
+import com.dataflow.MySqlManager;
 import com.dataflow.SqlServerManager;
 import com.dataflow.components.*;
 import com.expression.ExpressionHelper;
@@ -50,6 +51,7 @@ public class ExecuteDataflow {
                     }
                     listData.add(mapOneRow);
                 }
+                return listData;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -77,6 +79,34 @@ public class ExecuteDataflow {
                     }
                     listData.add(mapOneRow);
                 }
+                return listData;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (source instanceof MySqlSource) {
+            MySqlManager mySqlManager = dataFlow.getConnectionManager().getMySqlManager();
+            MySql mySql = mySqlManager.getMySql();
+            MysqlConnection mysqlConnection = new MysqlConnection(mySql.getHostname(), mySql.getUsername(), mySql.getPassword());
+            mysqlConnection.setDatabaseName(mySql.getDatabase());
+            try {
+                Connection connection = mysqlConnection.getConnection();
+                MysqlService mysqlService = new MysqlService(connection);
+                String tableName = ((MySqlSource) source).getTableName();
+                List<List<String>> listDataFromTable = mysqlService.getDataFromTable(tableName);
+                List<Column> listOutputColumns = source.getOutputColumns();
+                for (int i = 0; i < listDataFromTable.size(); i ++) {
+                    Map<String, String> mapOneRow = new HashMap<>();
+                    List<String> listOneRow = listDataFromTable.get(i);
+                    for (int j = 0; j < listOutputColumns.size(); j ++) {
+                        mapOneRow.put(listOutputColumns.get(j).getId(), listOneRow.get(j));
+                    }
+                    listData.add(mapOneRow);
+                }
+                return listData;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (SQLException e) {
@@ -174,6 +204,8 @@ public class ExecuteDataflow {
         }
 
         if (destination instanceof ExcelDestination) {
+            System.out.println(listData.size());
+            System.out.println(listInputDataToDestination.size());
             List<Column> listInputColumns =  ((ExcelDestination) destination).getInputColumns();
             Excel excel = dataFlow.getConnectionManager().getExcelManagerDestination().getExcel();
             ExcelConnection excelConnection = new ExcelConnection(excel.getFilePath());

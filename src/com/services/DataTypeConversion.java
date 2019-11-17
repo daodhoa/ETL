@@ -1,6 +1,7 @@
 package com.services;
 
 import com.enums.DataType;
+import com.model.Column;
 
 public class DataTypeConversion {
     public static DataType database2Java(String type) {
@@ -38,5 +39,28 @@ public class DataTypeConversion {
                 break;
         }
         return out;
+    }
+
+    public static String buildColumnInSqlString(Column column) {
+        String columnInString;
+        switch (column.getDataType()) {
+            case INT:
+                columnInString = column.getName() + " int, \n";
+                break;
+            case FLOAT:
+                columnInString = column.getName() + " float, \n";
+                break;
+            case BOOLEAN:
+                columnInString = column.getName() + " bit , \n";
+                break;
+            default:
+                if (column.getLength() < 0) {
+                    columnInString = column.getName() + " nvarchar(" + 100 +"), \n";
+                } else {
+                    columnInString = column.getName() + " nvarchar(" + column.getLength() +"), \n";
+                }
+                break;
+        }
+        return columnInString;
     }
 }

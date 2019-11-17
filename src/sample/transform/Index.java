@@ -5,6 +5,7 @@ import com.dataflow.DataFlow;
 import com.dataflow.components.DerivedColumn;
 import com.dataflow.components.SourceInterface;
 import com.dataflow.components.SqlServerSource;
+import com.enums.DataType;
 import com.expression.ExpressionEnums;
 import com.expression.ExpressionHelper;
 import com.model.Column;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class Index implements Initializable {
@@ -49,9 +51,6 @@ public class Index implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        cbDataType.getItems().add("String");
-        cbDataType.getItems().add("int");
-
         DataFlow dataFlow = Session.getDataFlow();
         SourceInterface source = dataFlow.getExecutables().getPineline().getComponents().getSource();
         List<Column> listCurrentColumns = source.getOutputColumns();
@@ -59,6 +58,12 @@ public class Index implements Initializable {
             listColumns.add(column);
         });
         fillToListView(listCurrentColumns);
+
+        Map<DataType, String> mapDataType = Session.getMapDataType();
+        for (Map.Entry<DataType, String> entry : mapDataType.entrySet()) {
+            cbDataType.getItems().add(entry.getKey());
+        }
+        cbDataType.getSelectionModel().select(DataType.STRING);
     }
 
     private void fillToListView(List<Column> listColumns) {
@@ -83,7 +88,12 @@ public class Index implements Initializable {
             return false;
         }
         try {
-            int columnName = Integer.valueOf(length);
+            int columnLength = Integer.valueOf(length);
+            if (columnLength <= 0) {
+                alert.setContentText("Size must be positive!");
+                alert.show();
+                return false;
+            }
         } catch (Exception e) {
             alert.setContentText("Size must be numeric!");
             alert.show();
@@ -124,7 +134,7 @@ public class Index implements Initializable {
         Column column = new Column();
         column.setName(txtName.getText().trim());
         column.setId("DataFlow.DerivedColumn.Outputs[DerivedColumnOutput].Columns["+ column.getName() + "]");
-        column.setDataType("String");
+        column.setDataType((DataType) cbDataType.getSelectionModel().getSelectedItem());
         column.setLength(Integer.valueOf(txtSize.getText().trim()));
         column.setLinearId(linearId);
         column.setExpression(txtExpression.getText());

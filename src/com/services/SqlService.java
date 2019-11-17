@@ -35,7 +35,7 @@ abstract class SqlService {
         while (rs.next()) {
             Column column = new Column();
             column.setName(rs.getString(1));
-            column.setDataType(rs.getString(2));
+            column.setDataType(DataTypeConversion.database2Java(rs.getString(2)));
             Object length = rs.getObject(3);
             int columnLength;
             try {
@@ -100,6 +100,18 @@ abstract class SqlService {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    public boolean createTable(String sqlString) {
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = connection.prepareStatement(sqlString);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            System.out.println(e.toString());
             return false;
         }
         return true;

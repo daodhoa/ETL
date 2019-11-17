@@ -129,7 +129,7 @@
                         </Pane>
                         <Pane fx:id="selectTablePane1" layoutX="136.0" layoutY="243.0" prefHeight="25.0" prefWidth="420.0">
                            <children>
-                              <Button layoutX="227.0" mnemonicParsing="false" onAction="#ssNewTable" prefHeight="25.0" prefWidth="82.0" text="New table" />
+                              <Button layoutX="227.0" mnemonicParsing="false" onAction="#myNewTable" prefHeight="25.0" prefWidth="82.0" text="New table" />
                               <ComboBox fx:id="myTableCb" layoutX="29.0" onMouseClicked="#myShowTableNames" prefHeight="25.0" prefWidth="181.0" promptText="select table or new table" />
                            </children>
                         </Pane>

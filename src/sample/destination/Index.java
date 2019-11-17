@@ -383,4 +383,26 @@ public class Index implements Initializable {
         stage.showAndWait();
         closeStage();
     }
+
+    @FXML
+    private void myNewTable() throws IOException {
+        if (!myValidate()) {
+            return;
+        }
+
+        if (myTestConnection() == null) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setContentText("Connection failed!");
+            alert.show();
+            return;
+        }
+
+        mySaveTempConfig(null);
+        Parent parent = FXMLLoader.load(getClass().getResource("my_new_table.fxml"));
+        Stage stage = new Stage();
+        stage.setTitle("New Table");
+        stage.setScene(new Scene(parent));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
+    }
 }

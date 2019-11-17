@@ -57,7 +57,7 @@ public class MysqlService extends SqlService {
         while (rs.next()) {
             Column column = new Column();
             column.setName(rs.getString(1));
-            column.setDataType(rs.getString(2));
+            column.setDataType(DataTypeConversion.database2Java(rs.getString(2)));
             Object length = rs.getObject(3);
             int columnLength;
             try {

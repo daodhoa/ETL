@@ -1,5 +1,7 @@
 package com.model;
 
+import com.enums.DataType;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Column {
     private String id;
     private String name;
-    private String dataType;
+    private DataType dataType;
     private int length;
     private String linearId;
     private String expression;
@@ -18,11 +20,11 @@ public class Column {
         this.linearId = null;
         this.expression = null;
         this.name = null;
-        this.dataType = null;
+        this.dataType = DataType.STRING;
         this.length = 0;
     }
 
-    public Column(String name, String dataType, int length) {
+    public Column(String name, DataType dataType, int length) {
         this.name = name;
         this.dataType = dataType;
         this.length = length;
@@ -31,7 +33,7 @@ public class Column {
         this.expression = null;
     }
 
-    public Column(String id, String name, String dataType, int length) {
+    public Column(String id, String name, DataType dataType, int length) {
         this.id = id;
         this.name = name;
         this.dataType = dataType;
@@ -57,11 +59,11 @@ public class Column {
         this.name = name;
     }
 
-    public String getDataType() {
+    public DataType getDataType() {
         return dataType;
     }
 
-    public void setDataType(String dataType) {
+    public void setDataType(DataType dataType) {
         this.dataType = dataType;
     }
 

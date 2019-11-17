@@ -1,5 +1,6 @@
 package com.connection;
 
+import com.enums.DataType;
 import com.model.Column;
 import org.apache.poi.ss.usermodel.*;
 
@@ -47,7 +48,7 @@ public class ExcelConnection {
         return workbook.getSheetAt(index);
     }
 
-    public List<Column> getColumn(int index, boolean isFirstRow) throws IOException {
+    public List<Column> getColumns(int index, boolean isFirstRow) throws IOException {
         List<Column> listColumn = new ArrayList<>();
         Sheet sheet = this.getSheetAtIndex(index);
         Row firstRow = sheet.getRow(0);
@@ -60,7 +61,7 @@ public class ExcelConnection {
         if (isFirstRow == false) {
             int numberOfColumn = firstRow.getLastCellNum();
             for (int i = 0; i < numberOfColumn; i++) {
-                Column column = new Column("Column " + i, "String", 100);
+                Column column = new Column("Column " + i, DataType.STRING, 100);
                 listColumn.add(column);
             }
             return listColumn;
@@ -69,7 +70,7 @@ public class ExcelConnection {
         Iterator<Cell> cellIterator = firstRow.cellIterator();
         while (cellIterator.hasNext()) {
             Cell cell = cellIterator.next();
-            Column column = new Column(dataFormatter.formatCellValue(cell), "String", 100);
+            Column column = new Column(dataFormatter.formatCellValue(cell), DataType.STRING, 100);
             listColumn.add(column);
         }
 

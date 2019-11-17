@@ -10,9 +10,7 @@ import com.xml.XmlHelper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import sample.Session;
@@ -64,7 +62,7 @@ public class ExcelColumnConfig implements Initializable {
 
     private void showContent(String filePath, int sheetIndex, boolean isFirstRow) throws IOException {
         ExcelConnection excelConnection = new ExcelConnection(filePath);
-        List<Column> listColumns = excelConnection.getColumn(sheetIndex, isFirstRow);
+        List<Column> listColumns = excelConnection.getColumns(sheetIndex, isFirstRow);
         if (listColumns == null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("This sheet is empty");
@@ -95,6 +93,7 @@ public class ExcelColumnConfig implements Initializable {
         if (column != null) {
             txtColumnName.setText(column.getName());
             txtColumnLength.setText(String.valueOf(column.getLength()));
+            cbDataType.getSelectionModel().select(column.getDataType());
         }
     }
 
@@ -105,6 +104,7 @@ public class ExcelColumnConfig implements Initializable {
         }
         String newName = txtColumnName.getText();
         String newLength = txtColumnLength.getText();
+        DataType dataType = (DataType) cbDataType.getSelectionModel().getSelectedItem();
         int index = this.selectedIndex;
         if (index == -1) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -115,6 +115,7 @@ public class ExcelColumnConfig implements Initializable {
         Column column = new Column();
         column.setName(newName);
         column.setLength(Integer.valueOf(newLength));
+        column.setDataType(dataType);
 
         listColumns.set(index, column);
         this.fillToListView();

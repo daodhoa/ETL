@@ -1,12 +1,12 @@
 package sample.destination;
 
-import com.connection.SqlServerConnection;
+import com.connection.MysqlConnection;
 import com.dataflow.Components;
 import com.dataflow.DataFlow;
 import com.model.Column;
-import com.model.SqlServer;
+import com.model.MySql;
 import com.services.DataTypeConversion;
-import com.services.SqlServerService;
+import com.services.MysqlService;
 import com.xml.XmlHelper;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,18 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class SsNewTable implements Initializable {
+public class MyNewTable implements Initializable {
     @FXML
     private TextArea txtNewTable;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         DataFlow dataFlow = Session.getDataFlow();
-
         List<Column> sourceColumns = new ArrayList<>();
-
         Components components = dataFlow.getExecutables().getPineline().getComponents();
-
         components.getSource().getOutputColumns().forEach(column -> {
             sourceColumns.add(column);
         });
@@ -44,14 +41,15 @@ public class SsNewTable implements Initializable {
                 sourceColumns.add(column);
             });
         }
-
         String columnInSqlString = "";
         for (int i = 0; i < sourceColumns.size(); i++) {
             Column column = sourceColumns.get(i);
             columnInSqlString += DataTypeConversion.buildColumnInSqlString(column);
         }
 
-        String sqlNewTable = "Create TABLE [TableName] (\n"+ columnInSqlString +")";
+        columnInSqlString = columnInSqlString.substring(0, columnInSqlString.length()-3) + "\n";
+
+        String sqlNewTable = "CREATE TABLE NewTable (\n"+ columnInSqlString +")";
         txtNewTable.setText(sqlNewTable);
     }
 
@@ -64,14 +62,14 @@ public class SsNewTable implements Initializable {
     @FXML
     private void saveAndClose() {
         String tableString = txtNewTable.getText().trim();
-        SqlServer sqlServer = XmlHelper.XmlToSqlServer("config/sql_server_temp.xml");
-        SqlServerConnection sqlServerConnection = new SqlServerConnection(sqlServer.getHostname(),
-                sqlServer.getUsername(), sqlServer.getPassword());
-        sqlServerConnection.setDatabaseName(sqlServer.getDatabase());
+        MySql mySql = XmlHelper.Xml2Mysql("config/mysql_temp.xml");
+        MysqlConnection mysqlConnection = new MysqlConnection(mySql.getHostname(),
+                mySql.getUsername(), mySql.getPassword());
+        mysqlConnection.setDatabaseName(mySql.getDatabase());
         try {
-            Connection connection = sqlServerConnection.getConnection();
-            SqlServerService sqlServerService = new SqlServerService(connection);
-            boolean status = sqlServerService.createTable(tableString);
+            Connection connection = mysqlConnection.getConnection();
+            MysqlService mysqlService = new MysqlService(connection);
+            boolean status = mysqlService.createTable(tableString);
             if (status) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setContentText("Create successfully");
