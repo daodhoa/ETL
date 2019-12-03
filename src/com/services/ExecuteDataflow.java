@@ -27,12 +27,15 @@ import java.util.Map;
 
 public class ExecuteDataflow {
     DataFlow dataFlow = Session.getDataFlow();
+    public static boolean isSave = true;
+    private List<String> listKeys = new ArrayList<>();
 
     private List<Map<String, String>> getDataFormSource() {
         List<Map<String, String>> listData = new ArrayList<>();
 
         SourceInterface source =  dataFlow.getExecutables().getPineline().getComponents().getSource();
         if (source instanceof ExcelSourceComponent) {
+            isSave = false;
             ExcelManager excelManager = dataFlow.getConnectionManager().getExcelManager();
             Excel excel = excelManager.getExcel();
             ExcelConnection excelConnection = new ExcelConnection(excel.getFilePath());
@@ -67,8 +70,13 @@ public class ExecuteDataflow {
                 Connection connection = sqlServerConnection.getConnection();
                 SqlServerService sqlServerService = new SqlServerService(connection);
                 String tableName = ((SqlServerSource) source).getTableName();
-                List<List<String>> listDataFromTable = sqlServerService.getDataFromTable(tableName);
 
+                listKeys = sqlServerService.getPrimaryKey(tableName);
+                if (listKeys.size() == 0) {
+                    isSave = false;
+                }
+
+                List<List<String>> listDataFromTable = sqlServerService.getDataFromTable(tableName);
                 List<Column> listOutputColumns = source.getOutputColumns();
 
                 for (int i = 0; i < listDataFromTable.size(); i ++) {
@@ -88,6 +96,7 @@ public class ExecuteDataflow {
         }
 
         if (source instanceof MySqlSource) {
+            isSave = false;
             MySqlManager mySqlManager = dataFlow.getConnectionManager().getMySqlManager();
             MySql mySql = mySqlManager.getMySql();
             MysqlConnection mysqlConnection = new MysqlConnection(mySql.getHostname(), mySql.getUsername(), mySql.getPassword());
@@ -153,8 +162,12 @@ public class ExecuteDataflow {
 
         DestinationInterface destination = Session.getDataFlow().getExecutables()
                 .getPineline().getComponents().getDestination();
+
+        List<Column> listInputColumns = destination.getInputColumns();
+        boolean findOrNot = ListHelper.checkKeyInDestination(listKeys, listInputColumns);
+        if (!findOrNot) isSave = false;
+
         if (destination instanceof SqlServerDestination) {
-            List<Column> listInputColumns = ((SqlServerDestination) destination).getInputColumns();
             String tableName = ((SqlServerDestination) destination).getTableName();
 
             String sqlString = buildSqlString(tableName, listInputColumns, false);
@@ -180,7 +193,6 @@ public class ExecuteDataflow {
         }
 
         if (destination instanceof MysqlDestination) {
-            List<Column> listInputColumns = ((MysqlDestination) destination).getInputColumns();
             String tableName = ((MysqlDestination) destination).getTableName();
             String sqlString = buildSqlString(tableName, listInputColumns, true);
             MySql mySql = dataFlow.getConnectionManager().getMySqlManagerDestination().getMySql();
@@ -204,9 +216,6 @@ public class ExecuteDataflow {
         }
 
         if (destination instanceof ExcelDestination) {
-            System.out.println(listData.size());
-            System.out.println(listInputDataToDestination.size());
-            List<Column> listInputColumns =  ((ExcelDestination) destination).getInputColumns();
             Excel excel = dataFlow.getConnectionManager().getExcelManagerDestination().getExcel();
             ExcelConnection excelConnection = new ExcelConnection(excel.getFilePath());
             boolean status = excelConnection.insertDataToSheet(excel.getSheetIndex(), listInputColumns, listInputDataToDestination);

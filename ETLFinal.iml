@@ -11,5 +11,6 @@
     <orderEntry type="library" name="sqljdbc421" level="project" />
     <orderEntry type="library" name="mysql-connector-java-8.0.18" level="project" />
     <orderEntry type="library" name="org.apache.directory.studio:org.apache.commons.io:2.4" level="project" />
+    <orderEntry type="library" name="org.controlsfx:controlsfx:8.40.15" level="project" />
   </component>
 </module>

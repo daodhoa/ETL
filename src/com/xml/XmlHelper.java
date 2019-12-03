@@ -116,4 +116,33 @@ public class XmlHelper {
             e.printStackTrace();
         }
     }
+
+    public static void saveDataFlow(DataFlow dataFlow, String path) {
+        File file = new File(path);
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(DataFlow.class);
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            marshaller.marshal(dataFlow, file);
+        } catch (JAXBException e) {
+            System.out.println("Loi khoi tao");
+            e.printStackTrace();
+        }
+    }
+
+    public static DataFlow xml2DataFlow(String filePath) {
+        File sqlFile = new File(filePath);
+        JAXBContext jaxbContext;
+        try
+        {
+            jaxbContext = JAXBContext.newInstance(DataFlow.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            return (DataFlow) jaxbUnmarshaller.unmarshal(sqlFile);
+        }
+        catch (JAXBException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

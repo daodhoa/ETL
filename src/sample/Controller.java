@@ -2,18 +2,19 @@ package sample;
 
 import com.dataflow.Components;
 import com.dataflow.DataFlow;
-import com.dataflow.Executables;
-import com.expression.ExpressionHelper;
 import com.services.ExecuteDataflow;
 import com.xml.XmlHelper;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ProgressBar;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.IOException;
 import java.net.URL;
@@ -86,7 +87,7 @@ public class Controller implements Initializable {
 
     @FXML
     private void execute() {
-        if (checkDestinationExist() == false) {
+        if (!checkDestinationExist()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("You must select destination to transform");
             alert.show();
@@ -95,6 +96,14 @@ public class Controller implements Initializable {
 
         ExecuteDataflow executeDataflow = new ExecuteDataflow();
         executeDataflow.execute();
+        
+        if (ExecuteDataflow.isSave) {
+            try {
+                showSaveDialog();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private boolean checkDestinationExist() {
@@ -108,5 +117,14 @@ public class Controller implements Initializable {
             return false;
         }
         return true;
+    }
+
+    private void showSaveDialog() throws IOException {
+        Parent parent = FXMLLoader.load(getClass().getResource("save_confirm.fxml"));
+        Scene scene = new Scene(parent);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setTitle("Save config");
+        stage.showAndWait();
     }
 }

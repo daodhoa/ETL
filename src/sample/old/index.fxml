@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="782.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.old.Index">
+   <top>
+      <Pane prefHeight="54.0" prefWidth="600.0" style="-fx-border-color: black;" BorderPane.alignment="CENTER">
+         <children>
+            <Label layoutX="22.0" layoutY="13.0" prefHeight="29.0" prefWidth="73.0" text="Name">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+   </top>
+   <bottom>
+      <Pane prefHeight="64.0" prefWidth="782.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button layoutX="607.0" layoutY="20.0" mnemonicParsing="false" text="Execute" />
+            <Button layoutX="683.0" layoutY="20.0" mnemonicParsing="false" text="Close" />
+         </children>
+      </Pane>
+   </bottom>
+   <left>
+      <Pane prefHeight="312.0" prefWidth="250.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" layoutX="60.0" layoutY="23.0" prefHeight="46.0" prefWidth="130.0" text="Extract source" underline="true">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblSourceName" layoutX="46.0" layoutY="68.0" prefHeight="35.0" prefWidth="177.0" text="Sql server" />
+         </children>
+      </Pane>
+   </left>
+   <right>
+      <Pane prefHeight="312.0" prefWidth="260.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" layoutX="62.0" layoutY="29.0" prefHeight="46.0" prefWidth="137.0" text="Load to Destination" underline="true">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblDestName" layoutX="48.0" layoutY="75.0" prefHeight="35.0" prefWidth="177.0" text="Excel" />
+         </children>
+      </Pane>
+   </right>
+   <center>
+      <Pane prefHeight="312.0" prefWidth="140.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" layoutX="71.0" layoutY="27.0" prefHeight="46.0" prefWidth="130.0" text="Transform" underline="true">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+   </center>
+</BorderPane>

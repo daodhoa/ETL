@@ -29,6 +29,7 @@ public class ExcelConnection {
         //File file = new File(getFilePath());
         InputStream file = new FileInputStream(getFilePath());
         Workbook workbook = WorkbookFactory.create(file);
+        file.close();
         return workbook;
     }
 
@@ -40,6 +41,7 @@ public class ExcelConnection {
             Sheet sheet = sheetIterator.next();
             listSheet.add(sheet.getSheetName());
         }
+        workbook.close();
         return listSheet;
     }
 

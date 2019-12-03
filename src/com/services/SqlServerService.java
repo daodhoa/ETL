@@ -98,4 +98,40 @@ public class SqlServerService extends SqlService{
 
         return listOutputColumns;
     }
+
+    public boolean checkPrimaryKey(String tableName) throws SQLException {
+        String[] tableSchemaTableName = tableName.split("\\.");
+
+        String sqlString = "SELECT *  \n" +
+                "FROM information_schema.table_constraints  \n" +
+                "WHERE constraint_type = 'PRIMARY KEY' AND TABLE_NAME = ? AND CONSTRAINT_SCHEMA = ?";
+        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+        preparedStatement.setString(1, tableSchemaTableName[1]);
+        preparedStatement.setString(2, tableSchemaTableName[0]);
+        ResultSet rs = preparedStatement.executeQuery();
+        if (rs.next()) {
+            return true;
+        }
+        return false;
+    }
+
+    public List<String> getPrimaryKey(String tableName) throws SQLException {
+        List<String> listKeys = new ArrayList<>();
+        String[] tableSchemaTableName = tableName.split("\\.");
+        String sqlString = "SELECT KU.table_name as TABLENAME,column_name as PRIMARYKEYCOLUMN \n" +
+                "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC \n" +
+                "INNER JOIN \n" +
+                "    INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU \n" +
+                "          ON TC.CONSTRAINT_TYPE = 'PRIMARY KEY' AND \n" +
+                "             TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME AND \n" +
+                "             KU.table_name= ? \n" +
+                "ORDER BY KU.TABLE_NAME, KU.ORDINAL_POSITION";
+        PreparedStatement preparedStatement = this.connection.prepareStatement(sqlString);
+        preparedStatement.setString(1, tableSchemaTableName[1]);
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            listKeys.add(rs.getString(2));
+        }
+        return listKeys;
+    }
 }

@@ -68,4 +68,17 @@ public class ConnectionManager {
     public void setMySqlManagerDestination(MySqlManager mySqlManagerDestination) {
         this.mySqlManagerDestination = mySqlManagerDestination;
     }
+
+    public String getRefIdOfDestination() {
+        if (this.excelManagerDestination != null) {
+            return  excelManagerDestination.getRefId();
+        }
+        if (this.sqlServerManagerDestination != null) {
+            return sqlServerManagerDestination.getRefId();
+        }
+        if (this.mySqlManagerDestination != null) {
+            return mySqlManagerDestination.getRefId();
+        }
+        return "";
+    }
 }

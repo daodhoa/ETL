@@ -13,7 +13,7 @@ public class ExcelManager {
     private String objectName;
 
     private Excel excel;
-
+    public ExcelManager(){}
     public ExcelManager(Excel excel) {
         this.excel = excel;
         this.objectName = "EXCEL";
